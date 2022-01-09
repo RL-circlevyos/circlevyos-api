@@ -42,6 +42,14 @@ const ImagineSchema = new mongoose.Schema({
       type: String,
     },
   },
+  audio: {
+    id: {
+      type: String,
+    },
+    secure_url: {
+      type: String,
+    },
+  },
   category: {
     type: String,
     required: [true, "please select category from only technology, react "],

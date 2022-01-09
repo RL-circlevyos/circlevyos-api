@@ -6,7 +6,7 @@ const CustomError = require("../utils/customError");
 const CustomeError = require("../utils/customError");
 
 exports.createImagine = BigPromise(async (req, res, next) => {
-  let introImageFile, outroImageFile;
+  let introImageFile, outroImageFile, audioFile;
 
   // check if introIMage file exists
   if (req.files) {
@@ -30,6 +30,17 @@ exports.createImagine = BigPromise(async (req, res, next) => {
         }
       );
     }
+
+    // 🎵 audio file
+    if (req.files.audio) {
+      audioFile = await cloudinary.v2.uploader.upload(
+        req.files.audio.tempFilePath,
+        {
+          folder: "imagines/audio",
+          crop: "scale",
+        }
+      );
+    }
   }
 
   if (!req.body.title || !req.body.main) {
@@ -49,10 +60,18 @@ exports.createImagine = BigPromise(async (req, res, next) => {
     secure_url: outroImageFile.secure_url,
   };
 
+  const audioUploadFile = audioFile && {
+    id: audioFile.public_id,
+    secure_url: audioFile.secure_url,
+  };
+
   const user = await User.findById(req.user.id);
+
+  console.log(user.name);
 
   (req.body.introImage = introImage ? introImage : null),
     (req.body.outroImage = outroImage ? outroImage : null),
+    (req.body.audio = audioUploadFile ? audioUploadFile : null),
     (req.body.user = req.user.id);
   (req.body.name = user.name), (req.body.photo = user.photo.secure_url);
 
@@ -65,7 +84,7 @@ exports.createImagine = BigPromise(async (req, res, next) => {
 });
 
 exports.getImagines = BigPromise(async (req, res, next) => {
-  const imaginesArray = await Imagines.find().sort({ date: -1 }); // most recent
+  const imaginesArray = await Imagines.find().sort("-createdAt"); // most recent
 
   res.status(200).json({
     success: true,

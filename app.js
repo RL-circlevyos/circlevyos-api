@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
@@ -12,10 +13,13 @@ const YAML = require("yamljs");
 const swaggerDocument = YAML.load("./swagger.yaml");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// cors
+app.use(cors({ credentials: true, origin: true }));
+
 // regular middleare
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.set("trust proxy", 1);
 // cookies and file middleare
 app.use(cookieParser());
 app.use(
@@ -24,9 +28,6 @@ app.use(
     tempFileDir: "/tmp/",
   })
 );
-
-// temp check
-app.set("view engine", "ejs");
 
 // morgan middleware
 app.use(morgan("tiny"));

@@ -16,11 +16,13 @@ const {
   singleUser,
   updateOneUserDetailsByAdmin,
   deleteOneUserByAdmin,
+  authState,
 } = require("../controller/userController");
 const { isLoggedIn, customRole } = require("../middleware/user");
 
 router.route("/signup").post(signup);
 router.route("/login").post(login);
+router.route("/authstate").get(isLoggedIn, authState);
 router.route("/logout").get(logout);
 router.route("/forgotPassword").post(forgotPassword);
 router.route("/password/reset/:token").post(resetPassword);
