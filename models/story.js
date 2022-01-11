@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const ImagineSchema = new mongoose.Schema({
+const StorySchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
@@ -12,37 +12,14 @@ const ImagineSchema = new mongoose.Schema({
   photo: {
     type: String,
   },
-  title: {
+  storyname: {
     type: String,
     required: [true, "Title is required"],
   },
-  intro: {
+  description: {
     type: String,
   },
-  introImage: {
-    id: {
-      type: String,
-    },
-    secure_url: {
-      type: String,
-    },
-  },
-  main: {
-    type: String,
-    required: [true, "need content of imagines"],
-  },
-  outro: {
-    type: String,
-  },
-  outroImage: {
-    id: {
-      type: String,
-    },
-    secure_url: {
-      type: String,
-    },
-  },
-  audio: {
+  coverImage: {
     id: {
       type: String,
     },
@@ -52,6 +29,7 @@ const ImagineSchema = new mongoose.Schema({
   },
   category: {
     type: String,
+    required: [true, "please select category from only technology, react "],
     enum: {
       values: ["technology", "react"],
       message: "please select category from only technology, react ",
@@ -88,10 +66,21 @@ const ImagineSchema = new mongoose.Schema({
       },
     },
   ],
+
+  imagines: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Imagine",
+    },
+  ],
+  publish: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-module.exports = mongoose.model("Imagine", ImagineSchema);
+module.exports = mongoose.model("Story", StorySchema);

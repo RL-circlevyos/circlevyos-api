@@ -36,11 +36,13 @@ app.use(morgan("tiny"));
 
 const user = require("./routes/user");
 const imagine = require("./routes/imagines");
+const story = require("./routes/story");
 
 // routes middleware
 
 app.use("/api/v1", user);
 app.use("/api/v1", imagine);
+app.use("/api/v1", story);
 
 // export app
 module.exports = app;

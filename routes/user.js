@@ -17,6 +17,9 @@ const {
   updateOneUserDetailsByAdmin,
   deleteOneUserByAdmin,
   authState,
+  follow,
+  unfollow,
+  userImagines,
 } = require("../controller/userController");
 const { isLoggedIn, customRole } = require("../middleware/user");
 
@@ -29,6 +32,9 @@ router.route("/password/reset/:token").post(resetPassword);
 router.route("/userdashboard").get(isLoggedIn, getLoggedInUserDetail);
 router.route("/password/update").post(isLoggedIn, changePassword);
 router.route("/userdashboard/update").post(isLoggedIn, updateUserDetails);
+router.route("/follow").put(isLoggedIn, follow);
+router.route("/unfollow").put(isLoggedIn, unfollow);
+router.route("/userimagines").get(isLoggedIn, userImagines);
 
 // admin only route
 router.route("/admin/users").get(isLoggedIn, customRole("admin"), adminAllUser);

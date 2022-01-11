@@ -31,6 +31,27 @@ const UserSchema = mongoose.Schema({
       type: String,
     },
   },
+  bio: {
+    type: String,
+  },
+  followers: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+    },
+  ],
+  following: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+    },
+  ],
+  imagines: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Imagine",
+    },
+  ],
 
   forgotPasswordToken: {
     type: String,

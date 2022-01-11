@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const mailHelper = require("../utils/emailHelper");
 const CustomError = require("../utils/customError");
 const gravatar = require("gravatar");
+const Imagines = require("../models/Imagines");
 
 exports.signup = BigPromise(async (req, res, next) => {
   let file;
@@ -308,4 +309,91 @@ exports.authState = BigPromise(async (req, res, next) => {
   res.status(404).json({
     msg: "you are not logged in",
   });
+});
+
+// follow and following user
+exports.follow = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.body.id);
+
+  if (!user.followers.includes(req.user.id)) {
+    User.findByIdAndUpdate(
+      req.body.id,
+      {
+        $push: { followers: req.user._id },
+      },
+      {
+        new: true,
+      },
+      (err, result) => {
+        if (err) {
+          return res.status(422).json({ msg: err });
+        }
+
+        User.findByIdAndUpdate(
+          req.user.id,
+          {
+            $push: { following: req.body.id },
+          },
+          { new: true }
+        )
+          .then((result) => {
+            res.json(result);
+          })
+          .catch((err) => {
+            return res.status(422).json({ msg: err });
+          });
+      }
+    );
+  } else {
+    res.status(400).json({
+      msg: "you already following",
+    });
+  }
+});
+
+// unfollow
+exports.unfollow = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.body.id);
+  if (user.followers.includes(req.user.id)) {
+    User.findByIdAndUpdate(
+      req.body.id,
+      {
+        $pull: { followers: req.user._id },
+      },
+      {
+        new: true,
+      },
+      (err, result) => {
+        if (err) {
+          return res.status(422).json({ msg: err });
+        }
+
+        User.findByIdAndUpdate(
+          req.user.id,
+          {
+            $pull: { following: req.body.id },
+          },
+          { new: true }
+        )
+          .then((result) => {
+            res.json(result);
+          })
+          .catch((err) => {
+            return res.status(422).json({ msg: err });
+          });
+      }
+    );
+  } else {
+    res.json({ msg: "you are not following, follow first" });
+  }
+});
+
+// show all user posted imagines
+exports.userImagines = BigPromise(async (req, res, next) => {
+  const imagine = await Imagines.find({ user: req.user.id }).populate(
+    "user",
+    "_id name"
+  );
+
+  res.json({ imagine });
 });
