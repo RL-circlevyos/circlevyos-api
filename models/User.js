@@ -52,6 +52,23 @@ const UserSchema = mongoose.Schema({
       ref: "Imagine",
     },
   ],
+  saveimagines: [
+    {
+      imagineid: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Imagine",
+      },
+      title: {
+        type: String,
+      },
+      photo: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+    },
+  ],
 
   forgotPasswordToken: {
     type: String,

@@ -67,10 +67,10 @@ const StorySchema = new mongoose.Schema({
     },
   ],
 
-  imagines: [
+  seriesparts: [
     {
       type: mongoose.Schema.ObjectId,
-      ref: "Imagine",
+      ref: "SeriesPart",
     },
   ],
   publish: {

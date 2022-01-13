@@ -1,5 +1,5 @@
 const BigPromise = require("../middleware/bigPromise");
-const Story = require("../models/story");
+const Story = require("../models/Story");
 const User = require("../models/User");
 const { createImagine } = require("./imagineController");
 
@@ -42,12 +42,8 @@ exports.createStory = BigPromise(async (req, res, next) => {
   });
 });
 
-exports.storyImagineCreate = BigPromise(async (req, res, next) => {
-  const story = await Story.findById(req.params.id);
-
-  const imagine = createImagine();
-
-  story.imagines.unshift({ imagines: imagine.newImagine });
+exports.storyImagineGet = BigPromise(async (req, res, next) => {
+  const story = await Story.findById();
 
   await story.save();
 });

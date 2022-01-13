@@ -36,7 +36,7 @@ exports.createImagine = BigPromise(async (req, res, next) => {
       audioFile = await cloudinary.v2.uploader.upload(
         req.files.audio.tempFilePath,
         {
-          folder: "imagines/audio",
+          folder: "imagineAudio",
           crop: "scale",
         }
       );
@@ -272,5 +272,49 @@ exports.deletecomment = BigPromise(async (req, res, next) => {
   res.status(200).json({
     success: true,
     comments: imagine.comments,
+  });
+});
+
+// save imagine
+exports.saveImagines = BigPromise(async (req, res, next) => {
+  const imagine = await Imagines.findById(req.params.id);
+  const user = await User.findById(req.user.id);
+
+  if (user.saveimagines.imagineid !== imagine.id) {
+    const saveItem = {
+      imagineid: imagine.id,
+      title: imagine.title,
+      name: imagine.name,
+      photo: imagine.photo,
+    };
+
+    user.saveimagines.unshift(saveItem);
+  } else {
+    res.status(404).json({
+      msg: "already saved",
+    });
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    saveimagines: user.saveimagines,
+  });
+});
+
+// delete save imagine
+exports.deleteSaveItem = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  user.saveimagines = user.saveimagines.filter(
+    ({ id }) => id !== req.params.id
+  );
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    savedImagines: user.saveimagines,
   });
 });
