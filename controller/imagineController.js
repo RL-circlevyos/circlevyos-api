@@ -72,8 +72,7 @@ exports.createImagine = BigPromise(async (req, res, next) => {
   (req.body.introImage = introImage ? introImage : null),
     (req.body.outroImage = outroImage ? outroImage : null),
     (req.body.audio = audioUploadFile ? audioUploadFile : null),
-    (req.body.user = req.user.id);
-  (req.body.name = user.name), (req.body.photo = user.photo.secure_url);
+    (req.body.user = user);
 
   const newImagine = await Imagines.create(req.body);
 

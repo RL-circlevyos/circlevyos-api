@@ -202,14 +202,17 @@ exports.updateUserDetails = BigPromise(async (req, res, next) => {
   const newData = {
     name: req.body.name,
     email: req.body.email,
+    bio: req.body.bio,
   };
 
   if (req.files) {
     const user = await User.findById(req.user.id);
     const imageId = user.photo.id;
 
-    //  delete photo on cloudinary
-    const resp = await cloudinary.v2.uploader.destroy(imageId);
+    if (imageId) {
+      //  delete photo on cloudinary
+      const resp = await cloudinary.v2.uploader.destroy(imageId);
+    }
 
     //  upload new photo
     const result = await cloudinary.v2.uploader.upload(

@@ -33,7 +33,7 @@ router.route("/password/reset/:token").post(resetPassword);
 router.route("/userdashboard").get(isLoggedIn, getLoggedInUserDetail);
 router.route("/userdashboard/:id").get(isLoggedIn, getUserDetail);
 router.route("/password/update").post(isLoggedIn, changePassword);
-router.route("/userdashboard/update").post(isLoggedIn, updateUserDetails);
+router.route("/userdashboard/update").patch(isLoggedIn, updateUserDetails);
 router.route("/follow").put(isLoggedIn, follow);
 router.route("/unfollow").put(isLoggedIn, unfollow);
 router.route("/userimagines/:id").get(isLoggedIn, userImagines);
