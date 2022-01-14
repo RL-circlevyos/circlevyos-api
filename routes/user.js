@@ -20,6 +20,7 @@ const {
   follow,
   unfollow,
   userImagines,
+  getUserDetail,
 } = require("../controller/userController");
 const { isLoggedIn, customRole } = require("../middleware/user");
 
@@ -30,11 +31,12 @@ router.route("/logout").get(logout);
 router.route("/forgotPassword").post(forgotPassword);
 router.route("/password/reset/:token").post(resetPassword);
 router.route("/userdashboard").get(isLoggedIn, getLoggedInUserDetail);
+router.route("/userdashboard/:id").get(isLoggedIn, getUserDetail);
 router.route("/password/update").post(isLoggedIn, changePassword);
 router.route("/userdashboard/update").post(isLoggedIn, updateUserDetails);
 router.route("/follow").put(isLoggedIn, follow);
 router.route("/unfollow").put(isLoggedIn, unfollow);
-router.route("/userimagines").get(isLoggedIn, userImagines);
+router.route("/userimagines/:id").get(isLoggedIn, userImagines);
 
 // admin only route
 router.route("/admin/users").get(isLoggedIn, customRole("admin"), adminAllUser);

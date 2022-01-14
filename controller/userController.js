@@ -169,6 +169,15 @@ exports.getLoggedInUserDetail = BigPromise(async (req, res, next) => {
   });
 });
 
+exports.getUserDetail = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
 exports.changePassword = BigPromise(async (req, res, next) => {
   const userId = req.user.id;
 
@@ -390,7 +399,7 @@ exports.unfollow = BigPromise(async (req, res, next) => {
 
 // show all user posted imagines
 exports.userImagines = BigPromise(async (req, res, next) => {
-  const imagine = await Imagines.find({ user: req.user.id }).populate(
+  const imagine = await Imagines.find({ user: req.params.id }).populate(
     "user",
     "_id name"
   );
