@@ -9,6 +9,7 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: [true, "Please provide a name"],
     maxLength: [40, "Name should be under 40 charecters"],
+    unique: [true, "username should be unique"],
   },
   email: {
     type: String,
@@ -54,18 +55,9 @@ const UserSchema = mongoose.Schema({
   ],
   saveimagines: [
     {
-      imagineid: {
+      imagine: {
         type: mongoose.Schema.ObjectId,
         ref: "Imagine",
-      },
-      title: {
-        type: String,
-      },
-      photo: {
-        type: String,
-      },
-      name: {
-        type: String,
       },
     },
   ],

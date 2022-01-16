@@ -83,7 +83,11 @@ exports.createImagine = BigPromise(async (req, res, next) => {
 });
 
 exports.getImagines = BigPromise(async (req, res, next) => {
-  const imaginesArray = await Imagines.find().sort("-createdAt"); // most recent
+  const imaginesArray = await Imagines.find().sort("-createdAt").populate({
+    path: "user",
+    select:
+      "-__v -bio -saveimagines -followers -following -createdAt -imagines",
+  }); // most recent
 
   res.status(200).json({
     success: true,
@@ -92,7 +96,11 @@ exports.getImagines = BigPromise(async (req, res, next) => {
 });
 
 exports.getSingleImagine = BigPromise(async (req, res, next) => {
-  const singleImagine = await Imagines.findById(req.params.id);
+  const singleImagine = await Imagines.findById(req.params.id).populate({
+    path: "user",
+    select:
+      "-__v -bio -saveimagines -followers -following -createdAt -imagines",
+  });
 
   if (!singleImagine) {
     return res.status(404).json({ msg: "page not found" });
@@ -281,10 +289,7 @@ exports.saveImagines = BigPromise(async (req, res, next) => {
 
   if (user.saveimagines.imagineid !== imagine.id) {
     const saveItem = {
-      imagineid: imagine.id,
-      title: imagine.title,
-      name: imagine.name,
-      photo: imagine.photo,
+      imagine: imagine,
     };
 
     user.saveimagines.unshift(saveItem);
