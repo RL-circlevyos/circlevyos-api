@@ -42,7 +42,7 @@ const ImagineSchema = new mongoose.Schema({
       type: String,
     },
   },
-  audio: {
+  audiovoice: {
     id: {
       type: String,
     },

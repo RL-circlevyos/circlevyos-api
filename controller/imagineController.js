@@ -8,6 +8,12 @@ const CustomeError = require("../utils/customError");
 exports.createImagine = BigPromise(async (req, res, next) => {
   let introImageFile, outroImageFile, audioFile;
 
+  console.log("===================");
+  console.log(req.files.audiovoice.tempFilePath);
+  console.log("===================");
+  console.log(req.files.outroImage);
+  console.log("===================");
+
   // check if introIMage file exists
   if (req.files) {
     if (req.files.introImage) {
@@ -32,12 +38,12 @@ exports.createImagine = BigPromise(async (req, res, next) => {
     }
 
     // 🎵 audio file
-    if (req.files.audio) {
+    if (req.files.audiovoice) {
       audioFile = await cloudinary.v2.uploader.upload(
-        req.files.audio.tempFilePath,
+        req.files.audiovoice.tempFilePath,
         {
-          folder: "imagineAudio",
-          crop: "scale",
+          folder: "imagines",
+          resource_type: "auto",
         }
       );
     }
@@ -49,6 +55,7 @@ exports.createImagine = BigPromise(async (req, res, next) => {
 
   console.log(introImageFile, "intro image file");
   console.log(outroImageFile, "outro image file");
+  console.log(audioFile, "audio file");
 
   const introImage = introImageFile && {
     id: introImageFile.public_id,
@@ -71,7 +78,7 @@ exports.createImagine = BigPromise(async (req, res, next) => {
 
   (req.body.introImage = introImage ? introImage : null),
     (req.body.outroImage = outroImage ? outroImage : null),
-    (req.body.audio = audioUploadFile ? audioUploadFile : null),
+    (req.body.audiovoice = audioUploadFile ? audioUploadFile : null),
     (req.body.user = user);
 
   const newImagine = await Imagines.create(req.body);

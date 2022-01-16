@@ -9,7 +9,6 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: [true, "Please provide a name"],
     maxLength: [40, "Name should be under 40 charecters"],
-    unique: [true, "username should be unique"],
   },
   email: {
     type: String,

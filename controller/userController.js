@@ -209,7 +209,7 @@ exports.changePassword = BigPromise(async (req, res, next) => {
 
 exports.updateUserDetails = BigPromise(async (req, res, next) => {
   let existingUser = await User.findOne({
-    $or: [{ email: req.body.email }, { name: req.body.name }],
+    email: req.body.email,
   });
 
   if (existingUser) {
