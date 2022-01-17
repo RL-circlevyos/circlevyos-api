@@ -6,6 +6,7 @@ const cookieToken = (user, res) => {
       Date.now() + process.env.COOKIE_TIME * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
+    secure: req.secure || req.headers("x-forwarded-proto") === "https",
   };
 
   user.password = undefined;
