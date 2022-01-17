@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set("trust proxy", 1);
 // cookies and file middleare
-app.use(cookieParser());
+app.use(cookieParser(process.env.JWT_SECRET));
 app.use(
   fileUpload({
     useTempFiles: true,
