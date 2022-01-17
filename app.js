@@ -20,7 +20,7 @@ app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
-app.enable("trust proxy");
+app.set("trust proxy", 1);
 // cookies and file middleare
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use(

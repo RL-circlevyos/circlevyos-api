@@ -7,6 +7,7 @@ const cookieToken = (user, req, res) => {
     ),
     httpOnly: true,
     secure: true,
+    domain: "*",
   };
 
   user.password = undefined;
