@@ -42,7 +42,7 @@ const ImagineSchema = new mongoose.Schema({
       type: String,
     },
   },
-  audio: {
+  audiovoice: {
     id: {
       type: String,
     },
@@ -50,13 +50,11 @@ const ImagineSchema = new mongoose.Schema({
       type: String,
     },
   },
-  category: {
-    type: String,
-    enum: {
-      values: ["technology", "react"],
-      message: "please select category from only technology, react ",
+  category: [
+    {
+      type: String,
     },
-  },
+  ],
   appriciates: [
     {
       user: {

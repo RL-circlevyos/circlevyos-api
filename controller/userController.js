@@ -27,7 +27,7 @@ exports.signup = BigPromise(async (req, res, next) => {
 
   const { name, email, password } = req.body;
 
-  let existingUser = await User.findOne({ email });
+  let existingUser = await User.findOne({ $or: [{ email }, { name }] });
 
   if (existingUser) {
     return res.status(400).json({ errors: [{ msg: "User already exists" }] });
@@ -111,7 +111,7 @@ exports.forgotPassword = BigPromise(async (req, res, next) => {
   try {
     const options = {
       email: user.email,
-      subject: "LCO tStore - password reset mail",
+      subject: "Password reset mail",
       message,
     };
     await mailHelper(options);
@@ -169,6 +169,24 @@ exports.getLoggedInUserDetail = BigPromise(async (req, res, next) => {
   });
 });
 
+exports.getUserDetail = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+exports.getMyDetail = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
 exports.changePassword = BigPromise(async (req, res, next) => {
   const userId = req.user.id;
 
@@ -190,17 +208,28 @@ exports.changePassword = BigPromise(async (req, res, next) => {
 });
 
 exports.updateUserDetails = BigPromise(async (req, res, next) => {
+  let existingUser = await User.findOne({
+    email: req.body.email,
+  });
+
+  if (existingUser) {
+    return res.status(400).json({ errors: [{ msg: "User already exists" }] });
+  }
+
   const newData = {
     name: req.body.name,
     email: req.body.email,
+    bio: req.body.bio,
   };
 
   if (req.files) {
     const user = await User.findById(req.user.id);
     const imageId = user.photo.id;
 
-    //  delete photo on cloudinary
-    const resp = await cloudinary.v2.uploader.destroy(imageId);
+    if (imageId) {
+      //  delete photo on cloudinary
+      const resp = await cloudinary.v2.uploader.destroy(imageId);
+    }
 
     //  upload new photo
     const result = await cloudinary.v2.uploader.upload(
@@ -390,10 +419,18 @@ exports.unfollow = BigPromise(async (req, res, next) => {
 
 // show all user posted imagines
 exports.userImagines = BigPromise(async (req, res, next) => {
-  const imagine = await Imagines.find({ user: req.user.id }).populate(
+  const imagine = await Imagines.find({ user: req.params.id }).populate(
     "user",
     "_id name"
   );
 
   res.json({ imagine });
+});
+
+exports.mySavedImagines = BigPromise(async (req, res, next) => {
+  const saveimagines = await User.findById(req.user.id).select("saveimagines");
+
+  res.status(200).json({
+    saveimagines,
+  });
 });

@@ -32,12 +32,12 @@ exports.createImagine = BigPromise(async (req, res, next) => {
     }
 
     // 🎵 audio file
-    if (req.files.audio) {
+    if (req.files.audiovoice) {
       audioFile = await cloudinary.v2.uploader.upload(
-        req.files.audio.tempFilePath,
+        req.files.audiovoice.tempFilePath,
         {
-          folder: "imagines/audio",
-          crop: "scale",
+          folder: "imagines",
+          resource_type: "auto",
         }
       );
     }
@@ -46,9 +46,6 @@ exports.createImagine = BigPromise(async (req, res, next) => {
   if (!req.body.title || !req.body.main) {
     return next(new CustomeError("title and main is required", 400));
   }
-
-  console.log(introImageFile, "intro image file");
-  console.log(outroImageFile, "outro image file");
 
   const introImage = introImageFile && {
     id: introImageFile.public_id,
@@ -71,9 +68,8 @@ exports.createImagine = BigPromise(async (req, res, next) => {
 
   (req.body.introImage = introImage ? introImage : null),
     (req.body.outroImage = outroImage ? outroImage : null),
-    (req.body.audio = audioUploadFile ? audioUploadFile : null),
-    (req.body.user = req.user.id);
-  (req.body.name = user.name), (req.body.photo = user.photo.secure_url);
+    (req.body.audiovoice = audioUploadFile ? audioUploadFile : null),
+    (req.body.user = user);
 
   const newImagine = await Imagines.create(req.body);
 
@@ -84,7 +80,11 @@ exports.createImagine = BigPromise(async (req, res, next) => {
 });
 
 exports.getImagines = BigPromise(async (req, res, next) => {
-  const imaginesArray = await Imagines.find().sort("-createdAt"); // most recent
+  const imaginesArray = await Imagines.find().sort("-createdAt").populate({
+    path: "user",
+    select:
+      "-__v -bio -saveimagines -followers -following -createdAt -imagines",
+  }); // most recent
 
   res.status(200).json({
     success: true,
@@ -93,7 +93,11 @@ exports.getImagines = BigPromise(async (req, res, next) => {
 });
 
 exports.getSingleImagine = BigPromise(async (req, res, next) => {
-  const singleImagine = await Imagines.findById(req.params.id);
+  const singleImagine = await Imagines.findById(req.params.id).populate({
+    path: "user",
+    select:
+      "-__v -bio -saveimagines -followers -following -createdAt -imagines",
+  });
 
   if (!singleImagine) {
     return res.status(404).json({ msg: "page not found" });
@@ -272,5 +276,46 @@ exports.deletecomment = BigPromise(async (req, res, next) => {
   res.status(200).json({
     success: true,
     comments: imagine.comments,
+  });
+});
+
+// save imagine
+exports.saveImagines = BigPromise(async (req, res, next) => {
+  const imagine = await Imagines.findById(req.params.id);
+  const user = await User.findById(req.user.id);
+
+  if (user.saveimagines.imagineid !== imagine.id) {
+    const saveItem = {
+      imagine: imagine,
+    };
+
+    user.saveimagines.unshift(saveItem);
+  } else {
+    res.status(404).json({
+      msg: "already saved",
+    });
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    saveimagines: user.saveimagines,
+  });
+});
+
+// delete save imagine
+exports.deleteSaveItem = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  user.saveimagines = user.saveimagines.filter(
+    ({ id }) => id !== req.params.id
+  );
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    savedImagines: user.saveimagines,
   });
 });
