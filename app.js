@@ -18,8 +18,9 @@ app.use(cors({ credentials: true, origin: true }));
 
 // regular middleare
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
-app.set("trust proxy", 1);
+app.enable("trust proxy");
 // cookies and file middleare
 app.use(cookieParser());
 app.use(
