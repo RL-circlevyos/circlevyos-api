@@ -8,12 +8,6 @@ const CustomeError = require("../utils/customError");
 exports.createImagine = BigPromise(async (req, res, next) => {
   let introImageFile, outroImageFile, audioFile;
 
-  console.log("===================");
-  console.log(req.files.audiovoice.tempFilePath);
-  console.log("===================");
-  console.log(req.files.outroImage);
-  console.log("===================");
-
   // check if introIMage file exists
   if (req.files) {
     if (req.files.introImage) {
@@ -52,10 +46,6 @@ exports.createImagine = BigPromise(async (req, res, next) => {
   if (!req.body.title || !req.body.main) {
     return next(new CustomeError("title and main is required", 400));
   }
-
-  console.log(introImageFile, "intro image file");
-  console.log(outroImageFile, "outro image file");
-  console.log(audioFile, "audio file");
 
   const introImage = introImageFile && {
     id: introImageFile.public_id,

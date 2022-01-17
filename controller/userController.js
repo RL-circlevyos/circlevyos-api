@@ -111,7 +111,7 @@ exports.forgotPassword = BigPromise(async (req, res, next) => {
   try {
     const options = {
       email: user.email,
-      subject: "LCO tStore - password reset mail",
+      subject: "Password reset mail",
       message,
     };
     await mailHelper(options);
