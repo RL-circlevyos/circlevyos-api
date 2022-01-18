@@ -15,6 +15,13 @@ cloudinary.config({
 
 PORT = process.env.PORT;
 
-app.listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
   console.log(`server running on  port ${process.env.PORT}`);
+});
+
+process.on("SIGTERM", () => {
+  console.log("SIGTERM RECEIVED, SHUTTING GRACEFULLY");
+  server.close(() => {
+    console.log("process terminated");
+  });
 });

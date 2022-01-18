@@ -49,7 +49,7 @@ exports.signup = BigPromise(async (req, res, next) => {
     photo: photo,
   });
 
-  cookieToken(user, res);
+  cookieToken(user, req, res);
 });
 
 exports.login = BigPromise(async (req, res, next) => {
@@ -75,7 +75,7 @@ exports.login = BigPromise(async (req, res, next) => {
   }
 
   // if all🆗 send token
-  cookieToken(user, res);
+  cookieToken(user, req, res);
 });
 
 exports.logout = BigPromise(async (req, res, next) => {
@@ -157,7 +157,7 @@ exports.resetPassword = BigPromise(async (req, res, next) => {
   await user.save();
 
   // send a JSON response
-  cookieToken(user, res);
+  cookieToken(user, req, res);
 });
 
 exports.getLoggedInUserDetail = BigPromise(async (req, res, next) => {
@@ -204,7 +204,7 @@ exports.changePassword = BigPromise(async (req, res, next) => {
 
   await user.save();
 
-  cookieToken(user, res);
+  cookieToken(user, req, res);
 });
 
 exports.updateUserDetails = BigPromise(async (req, res, next) => {
