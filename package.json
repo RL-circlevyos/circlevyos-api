@@ -26,8 +26,5 @@
     "swagger-ui-express": "^4.3.0",
     "validator": "^13.7.0",
     "yamljs": "^0.3.0"
-  },
-  "engines": {
-    "node": ">=10.0.0"
   }
 }

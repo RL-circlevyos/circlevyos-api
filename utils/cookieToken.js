@@ -1,4 +1,4 @@
-const cookieToken = (user, req, res) => {
+const cookieToken = (user, res) => {
   const token = user.getJwtToken();
 
   const options = {
@@ -6,8 +6,9 @@ const cookieToken = (user, req, res) => {
       Date.now() + process.env.COOKIE_TIME * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: true,
-    domain: "*",
+    secure: process.env.NODE_ENV === "dev",
+    signed: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
   };
 
   user.password = undefined;
