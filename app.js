@@ -36,18 +36,6 @@ app.use(morgan("tiny"));
 
 // import all routes
 
-const user = require("./routes/user");
-const imagine = require("./routes/imagines");
-// const story = require("./routes/story");
-const trending = require("./routes/trending");
-const BigPromise = require("./middleware/bigPromise");
-
-// routes middleware
-app.use("/api/v1", user);
-app.use("/api/v1", imagine);
-// app.use("/api/v1", story);
-app.use("/api/v1", trending);
-
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { credentials: true, origin: true },
@@ -77,7 +65,17 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
+//const user = require("./routes/user");
+//const imagine = require("./routes/imagines");
+// const story = require("./routes/story");
+//const trending = require("./routes/trending");
+//const BigPromise = require("./middleware/bigPromise");
 
-exports.io = io;
+// routes middleware
+app.use("/api/v1", require("./routes/user"));
+app.use("/api/v1", require("./routes/imagines"));
+// app.use("/api/v1", story);
+//app.use("/api/v1", trending);
+//exports.io = io;
 // export app
-module.exports = server;
+module.exports = { server, io };
