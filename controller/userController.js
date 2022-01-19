@@ -366,6 +366,7 @@ exports.follow = BigPromise(async (req, res, next) => {
           { new: true }
         )
           .then((result) => {
+            res.io.emit("follow");
             res.json(result);
           })
           .catch((err) => {
@@ -405,6 +406,7 @@ exports.unfollow = BigPromise(async (req, res, next) => {
           { new: true }
         )
           .then((result) => {
+            res.io.emit("unfollow");
             res.json(result);
           })
           .catch((err) => {

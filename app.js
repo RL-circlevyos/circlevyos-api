@@ -46,10 +46,13 @@ const io = new Server(server, {
   },
   allowUpgrades: true,
 });
+
+// socket middleware
 app.use((req, res, next) => {
   res.io = io;
   next();
 });
+
 io.on("connection", (socket) => {
   console.log("user connected");
   socket.on("message", async (message) => {
