@@ -4,6 +4,7 @@ const Imagines = require("../models/Imagines");
 const User = require("../models/User");
 const CustomError = require("../utils/customError");
 const CustomeError = require("../utils/customError");
+const { io } = require("../app");
 
 exports.createImagine = BigPromise(async (req, res, next) => {
   let introImageFile, outroImageFile, audioFile;
@@ -72,6 +73,8 @@ exports.createImagine = BigPromise(async (req, res, next) => {
     (req.body.user = user);
 
   const newImagine = await Imagines.create(req.body);
+
+  io.emit("create-imagine", newImagine);
 
   res.status(201).json({
     success: true,
@@ -224,6 +227,8 @@ exports.appriciate = BigPromise(async (req, res, next) => {
   }
 
   await imagine.save();
+
+  io.emit("appriciate", imagine.appriciates);
 
   return res.status(200).json(imagine.appriciates);
 });
