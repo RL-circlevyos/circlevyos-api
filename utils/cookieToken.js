@@ -1,4 +1,4 @@
-const cookieToken = (user, res) => {
+const cookieToken = (user, req, res) => {
   const token = user.getJwtToken();
 
   const options = {
