@@ -6,6 +6,8 @@ const app = express();
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
+const http = require("http");
+const { Server } = require("socket.io");
 
 // documentation imports
 const swaggerUi = require("swagger-ui-express");
@@ -35,16 +37,53 @@ app.use(morgan("tiny"));
 
 // import all routes
 
-const user = require("./routes/user");
-const imagine = require("./routes/imagines");
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { credentials: true, origin: true },
+  allowRequest: (req, callback) => {
+    cookieParser(process.env.JWT_SECRET)(req, {}, () => {
+      callback(null, req.cookies.token);
+    });
+  },
+  allowUpgrades: true,
+});
+
+// socket middleware
+app.use((req, res, next) => {
+  res.io = io;
+  next();
+});
+
+io.on("connection", (socket) => {
+  console.log("user connected");
+  socket.on("message", async (message) => {
+    try {
+      const decoded = jwt.verify(
+        socket.client.request.cookies.token,
+        process.env.JWT_SECRET
+      );
+
+      // await socket.join(decoded.id);
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+});
+//const user = require("./routes/user");
+//const imagine = require("./routes/imagines");
 // const story = require("./routes/story");
-const trending = require("./routes/trending");
+//const trending = require("./routes/trending");
+//const BigPromise = require("./middleware/bigPromise");
 
 // routes middleware
-app.use("/api/v1", user);
-app.use("/api/v1", imagine);
+app.use("/api/v1", require("./routes/user"));
+app.use("/api/v1", require("./routes/imagines"));
 // app.use("/api/v1", story);
-app.use("/api/v1", trending);
-
+//app.use("/api/v1", trending);
+//exports.io = io;
 // export app
-module.exports = app;
+
+module.exports = { server };

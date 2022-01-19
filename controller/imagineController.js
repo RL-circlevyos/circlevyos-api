@@ -73,6 +73,8 @@ exports.createImagine = BigPromise(async (req, res, next) => {
 
   const newImagine = await Imagines.create(req.body);
 
+  res.io.emit("create-imagine");
+
   res.status(201).json({
     success: true,
     newImagine,
@@ -202,6 +204,7 @@ exports.deleteImagine = BigPromise(async (req, res, next) => {
   // delete imagine from databse
   await imagine.remove();
 
+  res.io.emit("delete-imagine");
   res.status(200).json({
     msg: "imagine deleted",
   });
@@ -225,6 +228,8 @@ exports.appriciate = BigPromise(async (req, res, next) => {
 
   await imagine.save();
 
+  res.io.emit("appriciate", imagine.appriciates);
+
   return res.status(200).json(imagine.appriciates);
 });
 
@@ -247,7 +252,7 @@ exports.comment = BigPromise(async (req, res, next) => {
   imagine.comments.unshift(newComment);
 
   await imagine.save();
-
+  res.io.emit("create-comment");
   res.status(200).json({
     success: true,
     comments: imagine.comments,
@@ -273,6 +278,7 @@ exports.deletecomment = BigPromise(async (req, res, next) => {
 
   await imagine.save();
 
+  res.io.emit("delete-comment");
   res.status(200).json({
     success: true,
     comments: imagine.comments,
