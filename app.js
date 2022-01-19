@@ -46,7 +46,10 @@ const io = new Server(server, {
   },
   allowUpgrades: true,
 });
-
+app.use((req, res, next) => {
+  res.io = io;
+  next();
+});
 io.on("connection", (socket) => {
   console.log("user connected");
   socket.on("message", async (message) => {
@@ -78,4 +81,5 @@ app.use("/api/v1", require("./routes/imagines"));
 //app.use("/api/v1", trending);
 //exports.io = io;
 // export app
-module.exports = { server, io };
+
+module.exports = { server };
