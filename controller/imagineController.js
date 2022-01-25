@@ -210,6 +210,7 @@ exports.deleteImagine = BigPromise(async (req, res, next) => {
   });
 });
 
+// appriciate
 exports.appriciate = BigPromise(async (req, res, next) => {
   const imagine = await Imagines.findById(req.params.id);
 
@@ -226,7 +227,7 @@ exports.appriciate = BigPromise(async (req, res, next) => {
   }
 
   await imagine.save();
-
+  res.io.emit("appriciate", imagine.appriciates);
   return res.status(200).json(imagine.appriciates);
 });
 
