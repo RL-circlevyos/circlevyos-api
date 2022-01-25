@@ -210,10 +210,9 @@ exports.deleteImagine = BigPromise(async (req, res, next) => {
   });
 });
 
-// appriciate imagine
 exports.appriciate = BigPromise(async (req, res, next) => {
   const imagine = await Imagines.findById(req.params.id);
-
+  console.log(imagine);
   if (
     imagine.appriciates.some(
       (appriciate) => appriciate.user.toString() === req.user.id
@@ -223,12 +222,10 @@ exports.appriciate = BigPromise(async (req, res, next) => {
       ({ user }) => user.toString() !== req.user.id
     );
   } else {
-    imagine.appriciates.unshift({ user: req.user.id });
+    imagine.appriciates.unshift(req.user.id);
   }
 
   await imagine.save();
-
-  res.io.emit("appriciate", imagine.appriciates);
 
   return res.status(200).json(imagine.appriciates);
 });

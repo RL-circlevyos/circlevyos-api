@@ -57,10 +57,8 @@ const ImagineSchema = new mongoose.Schema({
   ],
   appriciates: [
     {
-      user: {
-        type: mongoose.Schema.ObjectId,
-        ref: "User",
-      },
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
     },
   ],
   comments: [
