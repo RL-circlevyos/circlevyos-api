@@ -421,10 +421,9 @@ exports.unfollow = BigPromise(async (req, res, next) => {
 
 // show all user posted imagines
 exports.userImagines = BigPromise(async (req, res, next) => {
-  const imagine = await Imagines.find({ user: req.params.id }).populate(
-    "user",
-    "_id name"
-  );
+  const imagine = await Imagines.find({ user: req.params.id })
+    .sort("-createdAt")
+    .populate("user", "_id name");
 
   res.json({ imagine });
 });
