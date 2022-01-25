@@ -228,9 +228,9 @@ exports.appriciate = BigPromise(async (req, res, next) => {
 
   await imagine.save();
 
-  res.io.emit("appriciate", imagine.appriciates.user);
+  res.io.emit("appriciate", imagine.appriciates);
 
-  return res.status(200).json(imagine.appriciates.user);
+  return res.status(200).json(imagine.appriciates);
 });
 
 // comment create to imagine
