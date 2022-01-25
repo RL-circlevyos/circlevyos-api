@@ -170,7 +170,10 @@ exports.getLoggedInUserDetail = BigPromise(async (req, res, next) => {
 });
 
 exports.getUserDetail = BigPromise(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id).populate(
+    "followers following",
+    "_id name photo email"
+  );
 
   res.status(200).json({
     success: true,

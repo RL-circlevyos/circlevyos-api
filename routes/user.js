@@ -23,6 +23,7 @@ const {
   getUserDetail,
   mySavedImagines,
   getMyDetail,
+  allFollowers,
 } = require("../controller/userController");
 const { isLoggedIn, customRole } = require("../middleware/user");
 
