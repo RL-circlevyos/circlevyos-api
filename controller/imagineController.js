@@ -212,14 +212,14 @@ exports.deleteImagine = BigPromise(async (req, res, next) => {
 
 exports.appriciate = BigPromise(async (req, res, next) => {
   const imagine = await Imagines.findById(req.params.id);
-  console.log(imagine);
+
   if (
     imagine.appriciates.some(
-      (appriciate) => appriciate.user.toString() === req.user.id
+      (appriciate) => appriciate.toString() === req.user.id
     )
   ) {
     imagine.appriciates = imagine.appriciates.filter(
-      ({ user }) => user.toString() !== req.user.id
+      (ap) => ap.toString() !== req.user.id
     );
   } else {
     imagine.appriciates.unshift(req.user.id);
