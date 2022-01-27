@@ -91,7 +91,7 @@ exports.getImagines = BigPromise(async (req, res, next) => {
 
   // console.log(followings);
 
-  const limitVal = 10;
+  const limitVal = 20;
   const skipVal = limitVal * req.query.skipCount;
   const imaginesArray = await Imagines.find()
     .sort("-createdAt")
@@ -135,40 +135,40 @@ exports.updateImgine = BigPromise(async (req, res, next) => {
   // fetching updated details
   let newImagineForUpdate = req.body;
 
-  if (imagine.introImage && req.files.introImage) {
-    introImageId = imagine.introImage.id;
-    // delete old image
-    await cloudinary.v2.uploader.destroy(introImageId);
+  // if (imagine.introImage && req.files.introImage) {
+  //   introImageId = imagine.introImage.id;
+  //   // delete old image
+  //   await cloudinary.v2.uploader.destroy(introImageId);
 
-    // now upload new intro image
-    const result = await cloudinary.v2.uploader.upload(
-      req.files.introImage.tempFilePath,
-      {
-        folder: "imagines",
-        crop: "scale",
-      }
-    );
-  }
+  //   // now upload new intro image
+  //   const result = await cloudinary.v2.uploader.upload(
+  //     req.files.introImage.tempFilePath,
+  //     {
+  //       folder: "imagines",
+  //       crop: "scale",
+  //     }
+  //   );
+  // }
 
-  if (imagine.outroImage && req.files.outroImage) {
-    outroImageId = imagine.outroImage.id;
-    // delete old image
-    await cloudinary.v2.uploader.destroy(outroImageId);
+  // if (imagine.outroImage && req.files.outroImage) {
+  //   outroImageId = imagine.outroImage.id;
+  //   // delete old image
+  //   await cloudinary.v2.uploader.destroy(outroImageId);
 
-    // now upload new intro image
-    const result = await cloudinary.v2.uploader.upload(
-      req.files.outroImage.tempFilePath,
-      {
-        folder: "imagines",
-        crop: "scale",
-      }
-    );
+  //   // now upload new intro image
+  //   const result = await cloudinary.v2.uploader.upload(
+  //     req.files.outroImage.tempFilePath,
+  //     {
+  //       folder: "imagines",
+  //       crop: "scale",
+  //     }
+  //   );
 
-    newImagineForUpdate.outroImage = result && {
-      id: result.public_id,
-      secure_url: result.secure_url,
-    };
-  }
+  //   newImagineForUpdate.outroImage = result && {
+  //     id: result.public_id,
+  //     secure_url: result.secure_url,
+  //   };
+  // }
 
   const updateImagine = await Imagines.findByIdAndUpdate(
     req.params.id,
