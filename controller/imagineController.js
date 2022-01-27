@@ -82,11 +82,26 @@ exports.createImagine = BigPromise(async (req, res, next) => {
 });
 
 exports.getImagines = BigPromise(async (req, res, next) => {
-  const imaginesArray = await Imagines.find().sort("-createdAt").populate({
-    path: "user",
-    select:
-      "-__v -bio -saveimagines -followers -following -createdAt -imagines",
-  }); // most recent
+  // find user's followings
+  // then extract followings user's posts
+  // const followings = await User.findById(req.query.id).populate(
+  //   "following",
+  //   "_id name imagines"
+  // );
+
+  // console.log(followings);
+
+  const limitVal = 10;
+  const skipVal = limitVal * req.query.skipCount;
+  const imaginesArray = await Imagines.find()
+    .sort("-createdAt")
+    .limit(limitVal)
+    .skip(skipVal)
+    .populate({
+      path: "user",
+      select:
+        "-__v -bio -saveimagines -followers -following -createdAt -imagines",
+    }); // most recent
 
   res.status(200).json({
     success: true,
@@ -164,7 +179,7 @@ exports.updateImgine = BigPromise(async (req, res, next) => {
       useFindAndModify: false,
     }
   );
-
+  res.io.emit("update-imagine");
   res.status(200).json({ success: true, updateImagine });
 });
 
