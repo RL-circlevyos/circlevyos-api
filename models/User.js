@@ -22,7 +22,9 @@ const UserSchema = mongoose.Schema({
     minlength: [9, "password should be atleast 9 char"],
     select: false,
   },
-
+  hash: {
+    type: String,
+  },
   photo: {
     id: {
       type: String,

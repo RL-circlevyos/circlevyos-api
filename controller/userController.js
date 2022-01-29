@@ -41,15 +41,19 @@ exports.signup = BigPromise(async (req, res, next) => {
     secure_url: result.secure_url,
   };
 
+  const hash = crypto.randomBytes(16).toString("hex");
+
   console.log(photo, "expecting gravatar");
   const user = await User.create({
     name,
     email,
     password,
     photo: photo,
+    hash,
   });
 
-  cookieToken(user, req, res);
+  return res.json({ user });
+  // cookieToken(user, req, res);
 });
 
 exports.login = BigPromise(async (req, res, next) => {
@@ -72,6 +76,10 @@ exports.login = BigPromise(async (req, res, next) => {
 
   if (!isPasswordCorrect) {
     return next(new CustomeError("Email or password does not exits", 400));
+  }
+
+  if (user.hash) {
+    return next(new CustomeError("Email verification required", 400));
   }
 
   // if all🆗 send token
@@ -217,6 +225,16 @@ exports.changePassword = BigPromise(async (req, res, next) => {
   await user.save();
 
   cookieToken(user, req, res);
+});
+
+exports.verifyEmail = BigPromise(async (req, res, next) => {
+  const userhash = await User.findOne({ hash: req.params.hash });
+
+  if (userhash) {
+    await User.updateOne({ _id: userhash._id }, { $set: { hash: "" } });
+    return res.json({ success: true });
+  }
+  return res.json({ success: false });
 });
 
 exports.updateUserDetails = BigPromise(async (req, res, next) => {
