@@ -181,6 +181,15 @@ exports.getUserDetail = BigPromise(async (req, res, next) => {
   });
 });
 
+exports.getUserflw = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
 exports.getMyDetail = BigPromise(async (req, res, next) => {
   const user = await User.findById(req.user.id);
 

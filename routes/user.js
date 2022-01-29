@@ -24,6 +24,8 @@ const {
   mySavedImagines,
   getMyDetail,
   allFollowers,
+  getUserFollowerFollowings,
+  getUserflw,
 } = require("../controller/userController");
 const { isLoggedIn, customRole } = require("../middleware/user");
 
@@ -42,6 +44,7 @@ router.route("/follow").put(isLoggedIn, follow);
 router.route("/unfollow").put(isLoggedIn, unfollow);
 router.route("/userimagines/:id").get(isLoggedIn, userImagines);
 router.route("/mysaveimagines").get(isLoggedIn, mySavedImagines);
+router.route("/userflw/:id").get(isLoggedIn, getUserflw);
 
 // admin only route
 router.route("/admin/users").get(isLoggedIn, customRole("admin"), adminAllUser);
