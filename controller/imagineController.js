@@ -246,6 +246,14 @@ exports.appriciate = BigPromise(async (req, res, next) => {
   return res.status(200).json(imagine.appriciates);
 });
 
+exports.appriciateList = BigPromise(async (req, res, next) => {
+  const singleImagine = await Imagines.findById(req.params.id).populate(
+    "appriciates",
+    "_id name photo"
+  );
+  // const appriciates = singleImagine.appriciates
+  return res.status(200).json(singleImagine);
+});
 // comment create to imagine
 exports.comment = BigPromise(async (req, res, next) => {
   const imagine = await Imagines.findById(req.params.id);
