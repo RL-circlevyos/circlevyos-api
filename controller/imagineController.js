@@ -280,6 +280,13 @@ exports.comment = BigPromise(async (req, res, next) => {
   });
 });
 
+// get comment
+exports.getComments = BigPromise(async (req, res, next) => {
+  const imagines = await Imagines.findById(req.params.id);
+
+  return res.json({ comments: imagines.comments });
+});
+
 // delete comment
 exports.deletecomment = BigPromise(async (req, res, next) => {
   const imagine = await Imagines.findById(req.params.id);
