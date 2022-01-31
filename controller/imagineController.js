@@ -254,6 +254,16 @@ exports.appriciateList = BigPromise(async (req, res, next) => {
   // const appriciates = singleImagine.appriciates
   return res.status(200).json(singleImagine);
 });
+
+// appriciate id list
+exports.appriciateIdList = BigPromise(async (req, res, next) => {
+  const singleImagine = await Imagines.findById(req.params.id);
+  // const appriciates = singleImagine.appriciates
+  if (!singleImagine) {
+    return next(new CustomError("No such imagine exists"));
+  }
+  return res.status(200).json(singleImagine.appriciates);
+});
 // comment create to imagine
 exports.comment = BigPromise(async (req, res, next) => {
   const imagine = await Imagines.findById(req.params.id);

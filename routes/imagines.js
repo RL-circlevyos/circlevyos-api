@@ -12,6 +12,7 @@ const {
   deleteSaveItem,
   appriciateList,
   getComments,
+  appriciateIdList,
 } = require("../controller/imagineController");
 const { isAuthor } = require("../middleware/imagine");
 const { isLoggedIn } = require("../middleware/user");
@@ -27,6 +28,9 @@ router.route("/imagines/:id").patch(isLoggedIn, isAuthor, updateImgine);
 router.route("/imagines/:id").delete(isLoggedIn, isAuthor, deleteImagine);
 router.route("/imagines/:id/appriciate").put(isLoggedIn, appriciate);
 router.route("/imagines/:id/appriciateList").get(isLoggedIn, appriciateList);
+router
+  .route("/imagines/:id/appriciateIdList")
+  .get(isLoggedIn, appriciateIdList);
 router.route("/imagines/:id/comment").post(isLoggedIn, comment);
 router.route("/imagines/:id/comments").get(isLoggedIn, getComments);
 router.route("/imagines/:id/save").put(isLoggedIn, saveImagines);
