@@ -50,6 +50,12 @@ const ImagineSchema = new mongoose.Schema({
       type: String,
     },
   },
+  reports: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Report",
+    },
+  ],
   category: [
     {
       type: String,
