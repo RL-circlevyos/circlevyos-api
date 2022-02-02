@@ -55,7 +55,7 @@ exports.signup = BigPromise(async (req, res, next) => {
   const verificationToken = user.generateVerificationToken();
 
   // Step 3 - Email the user a unique verification link
-  const url = `http://localhost:3000/api/verify/${verificationToken}`;
+  const url = `http://localhost:3000/verify/${verificationToken}`;
   html = `Click <a href = '${url}'>here</a> to confirm your email.`;
   try {
     const options = {
