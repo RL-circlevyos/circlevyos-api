@@ -3,16 +3,15 @@ require("dotenv").config();
 
 const mailHelper = async (options) => {
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    service: "Gmail",
     auth: {
-      user: process.env.SMTP_USER, // generated ethereal user
-      pass: process.env.SMTP_PASS, // generated ethereal password
+      user: process.env.EMAIL_USERNAME,
+      pass: process.env.EMAIL_PASSWORD,
     },
   });
 
   const message = {
-    from: "sayanm816@gmail.com", // sender address
+    // from: "sayanm816@gmail.com", // sender address
     to: options.email, // list of receivers
     subject: options.subject, // Subject line
     text: options.message, // plain text body

@@ -22,8 +22,10 @@ const UserSchema = mongoose.Schema({
     minlength: [9, "password should be atleast 9 char"],
     select: false,
   },
-  hash: {
-    type: String,
+  verified: {
+    type: Boolean,
+    required: true,
+    default: false,
   },
   photo: {
     id: {
@@ -98,6 +100,23 @@ UserSchema.methods.getJwtToken = function () {
   return jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRY,
   });
+};
+
+// generate verification token
+UserSchema.methods.generateVerificationToken = function () {
+  // generate a long random string
+  const verifyToken = crypto.randomBytes(20).toString("hex");
+
+  //   getting a hash - make sure to get a hash on backend
+  this.verifyAccountToken = crypto
+    .createHash("sha256")
+    .update(verifyToken)
+    .digest("hex");
+
+  // time of token
+  this.verifyAccountExpiry = Date.now() + 20 * 60 * 1000;
+
+  return verifyToken;
 };
 
 // generate forgot password token (string)

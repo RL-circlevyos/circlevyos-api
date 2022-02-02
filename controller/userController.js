@@ -52,6 +52,29 @@ exports.signup = BigPromise(async (req, res, next) => {
     hash,
   });
 
+  const verificationToken = user.generateVerificationToken();
+
+  // Step 3 - Email the user a unique verification link
+  const url = `http://localhost:3000/api/verify/${verificationToken}`;
+  html = `Click <a href = '${url}'>here</a> to confirm your email.`;
+  try {
+    const options = {
+      email: email,
+      subject: "Verification mail",
+      message: `copy pase you link to browser ${html}`,
+    };
+    await mailHelper(options);
+    res.status(200).json({
+      success: true,
+      message: "email sent succesfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: true,
+      message: error,
+    });
+  }
+
   return res.json({ user });
   // cookieToken(user, req, res);
 });
