@@ -11,20 +11,6 @@ const gravatar = require("gravatar");
 const Imagines = require("../models/Imagines");
 
 exports.signup = BigPromise(async (req, res, next) => {
-  let file;
-  let result;
-
-  // if file exists then preceed for file upload
-  if (req.files) {
-    file = req.files.photo;
-
-    result = await cloudinary.v2.uploader.upload(file.tempFilePath, {
-      folder: "users",
-      width: 150,
-      crop: "scale",
-    });
-  }
-
   const { name, email, password } = req.body;
 
   let existingUser = await User.findOne({ $or: [{ email }, { name }] });
@@ -36,17 +22,10 @@ exports.signup = BigPromise(async (req, res, next) => {
     return next(new CustomeError("Name, email and password is required", 400));
   }
 
-  let photo = result && {
-    id: result.public_id,
-    secure_url: result.secure_url,
-  };
-
-  console.log(photo, "expecting gravatar");
   const user = await User.create({
     name,
     email,
     password,
-    photo: photo,
   });
 
   cookieToken(user, req, res);
