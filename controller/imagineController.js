@@ -120,6 +120,13 @@ exports.getSingleImagine = BigPromise(async (req, res, next) => {
     return res.status(404).json({ msg: "page not found" });
   }
 
+  // views
+  const imagine = await Imagines.findById(req.params.id);
+  imagine.views = imagine.views + 1;
+  imagine.save();
+
+  // Imagines.findByIdAndUpdate(req.params.id)
+
   res.status(200).json({
     success: true,
     singleImagine,

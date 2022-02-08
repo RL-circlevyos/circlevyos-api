@@ -58,14 +58,11 @@ exports.login = BigPromise(async (req, res, next) => {
 });
 
 exports.logout = BigPromise(async (req, res, next) => {
-  // res.cookie("token", null, {
-  //   expires: new Date(Date.now()),
-  //   httpOnly: true,
-  // });
-  res.clearCookie("token");
-  res.status(200).json({
-    success: true,
-    messgae: "Logout success",
+  res.cookie("token", null, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    // signed: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
   });
 });
 
