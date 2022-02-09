@@ -146,6 +146,16 @@ exports.getLoggedInUserDetail = BigPromise(async (req, res, next) => {
   });
 });
 
+// get only account
+exports.getAccountDetail = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
 exports.getUserDetail = BigPromise(async (req, res, next) => {
   const user = await User.findById(req.params.id).populate(
     "followers following",
