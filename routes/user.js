@@ -45,6 +45,7 @@ router.route("/userdashboard/update").patch(isLoggedIn, updateUserDetails);
 router.route("/follow").put(isLoggedIn, follow);
 router.route("/unfollow").put(isLoggedIn, unfollow);
 router.route("/userimagines/:id").get(isLoggedIn, userImagines);
+router.route("/ac/imagines/:id").get(userImagines);
 router.route("/mysaveimagines").get(isLoggedIn, mySavedImagines);
 router.route("/userflw/:id").get(isLoggedIn, getUserflw);
 
