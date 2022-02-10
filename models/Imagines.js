@@ -14,7 +14,6 @@ const ImagineSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: [true, "Title is required"],
   },
   intro: {
     type: String,
@@ -97,6 +96,15 @@ const ImagineSchema = new mongoose.Schema({
   views: {
     type: Number,
     default: 0,
+  },
+  background: {
+    type: String,
+  },
+  textcolor: {
+    type: String,
+  },
+  imaginetype: {
+    type: String,
   },
 });
 

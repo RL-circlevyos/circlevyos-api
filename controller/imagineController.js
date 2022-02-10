@@ -43,8 +43,8 @@ exports.createImagine = BigPromise(async (req, res, next) => {
     }
   }
 
-  if (!req.body.title || !req.body.main) {
-    return next(new CustomeError("title and main is required", 400));
+  if (!req.body.main) {
+    return next(new CustomeError("Content is required", 400));
   }
 
   const introImage = introImageFile && {
