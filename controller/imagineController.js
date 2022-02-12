@@ -331,6 +331,40 @@ exports.deletecomment = BigPromise(async (req, res, next) => {
   });
 });
 
+// create report
+exports.report = BigPromise(async (req, res, next) => {
+  const imagine = await Imagines.findById(req.params.id);
+  const user = await User.findById(req.user.id);
+
+  if (!req.body.textreport) {
+    return next(new CustomError("report text is required", 400));
+  }
+
+  const newReport = {
+    textreport: req.body.textreport,
+    name: user.name,
+
+    user: req.user.id,
+  };
+
+  imagine.reports.unshift(newReport);
+
+  await imagine.save();
+
+  res.status(200).json({
+    success: true,
+    reports: imagine.reports,
+  });
+});
+
+// get reports
+exports.getReports = BigPromise(async (req, res, next) => {
+  const imagines = await Imagines.findById(req.params.id);
+
+  return res.json({ reports: imagines.reports });
+});
+``;
+
 // save imagine
 exports.saveImagines = BigPromise(async (req, res, next) => {
   const imagine = await Imagines.findById(req.params.id);

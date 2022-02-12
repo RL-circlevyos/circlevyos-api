@@ -106,6 +106,27 @@ const ImagineSchema = new mongoose.Schema({
   imaginetype: {
     type: String,
   },
+  reports: [
+    {
+      user: {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+        required: true,
+      },
+      name: {
+        type: String,
+      },
+
+      textreport: {
+        type: String,
+        required: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model("Imagine", ImagineSchema);

@@ -2,6 +2,7 @@ const { server } = require("./app");
 const connectWithDb = require("./config/db");
 require("dotenv").config();
 const cloudinary = require("cloudinary");
+const http = require("http");
 
 // connect with databse
 connectWithDb();
@@ -15,9 +16,7 @@ cloudinary.config({
 
 PORT = process.env.PORT;
 
-
 server.listen(process.env.PORT, () => {
-
   console.log(`server running on  port ${process.env.PORT}`);
 });
 

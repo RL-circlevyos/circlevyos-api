@@ -81,6 +81,7 @@ io.on("connection", (socket) => {
 // routes middleware
 app.use("/api/v1", require("./routes/user"));
 app.use("/api/v1", require("./routes/imagines"));
+app.use("/api/v1", require("./routes/feedback"));
 // app.use("/api/v1", story);
 //app.use("/api/v1", trending);
 //exports.io = io;
