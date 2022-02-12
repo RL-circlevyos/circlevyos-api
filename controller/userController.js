@@ -62,7 +62,7 @@ exports.logout = BigPromise(async (req, res, next) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     // signed: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    // sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
   });
 });
 
