@@ -13,10 +13,10 @@ const cloudinary = require("cloudinary");
 const serverless = require("serverless-http");
 
 // documentation imports
-const swaggerUi = require("swagger-ui-express");
-const YAML = require("yamljs");
-const swaggerDocument = YAML.load("./swagger.yaml");
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// const swaggerUi = require("swagger-ui-express");
+// const YAML = require("yamljs");
+// const swaggerDocument = YAML.load("./swagger.yaml");
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 require("dotenv").config();
 // cors
 app.use(cors({ credentials: true, origin: true }));
