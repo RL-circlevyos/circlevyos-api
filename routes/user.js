@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   signup,
   login,
+  activateEmail,
   logout,
   forgotPassword,
   resetPassword,
@@ -27,15 +28,21 @@ const {
   getUserFollowerFollowings,
   getUserflw,
   getAccountDetail,
+  getAccessToken,
 } = require("../controller/userController");
 const { isLoggedIn, customRole } = require("../middleware/user");
 
 router.route("/signup").post(signup);
+router.route("/activation").post(activateEmail);
 router.route("/login").post(login);
-router.route("/authstate").get(isLoggedIn, authState);
+router.route("/refresh_token").post(getAccessToken);
+
+router.route("/authstate").get(isLoggedIn, authState); // todo : remove endpoint
+
 router.route("/logout").get(logout);
 router.route("/forgotPassword").post(forgotPassword);
-router.route("/password/reset/:token").post(resetPassword);
+router.route("/reset").post(isLoggedIn, resetPassword);
+
 router.route("/userdashboard").get(isLoggedIn, getLoggedInUserDetail);
 router.route("/ac/:id").get(getAccountDetail);
 router.route("/mydetails").get(isLoggedIn, getMyDetail);
