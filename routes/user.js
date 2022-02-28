@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   signup,
   login,
+  activateEmail,
   logout,
   forgotPassword,
   resetPassword,
@@ -27,17 +28,26 @@ const {
   getUserFollowerFollowings,
   getUserflw,
   getAccountDetail,
+  getAccessToken,
+  googleLogin,
 } = require("../controller/userController");
 const { isLoggedIn, customRole } = require("../middleware/user");
 
 router.route("/signup").post(signup);
+router.route("/activation").post(activateEmail);
 router.route("/login").post(login);
-router.route("/authstate").get(isLoggedIn, authState);
+router.route("/google_login").post(googleLogin);
+router.route("/refresh_token").post(getAccessToken);
+
+router.route("/authstate").get(isLoggedIn, authState); // todo : remove endpoint
+
 router.route("/logout").get(logout);
 router.route("/forgotPassword").post(forgotPassword);
-router.route("/password/reset/:token").post(resetPassword);
+router.route("/reset").post(isLoggedIn, resetPassword);
+
 router.route("/userdashboard").get(isLoggedIn, getLoggedInUserDetail);
 router.route("/ac/:id").get(getAccountDetail);
+router.route("/ac/imagines/:id").get(userImagines);
 router.route("/mydetails").get(isLoggedIn, getMyDetail);
 router.route("/userdashboard/:id").get(isLoggedIn, getUserDetail);
 router.route("/password/update").post(isLoggedIn, changePassword);
@@ -45,7 +55,6 @@ router.route("/userdashboard/update").patch(isLoggedIn, updateUserDetails);
 router.route("/follow").put(isLoggedIn, follow);
 router.route("/unfollow").put(isLoggedIn, unfollow);
 router.route("/userimagines/:id").get(isLoggedIn, userImagines);
-router.route("/ac/imagines/:id").get(userImagines);
 router.route("/mysaveimagines").get(isLoggedIn, mySavedImagines);
 router.route("/userflw/:id").get(isLoggedIn, getUserflw);
 
