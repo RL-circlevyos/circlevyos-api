@@ -123,35 +123,112 @@ exports.login = async (req, res) => {
       path: "/api/v1/refresh_token",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
+    res.cookie("refreshtoken", refresh_token, {
+      httpOnly: true,
+
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
     res.json({ msg: "Login success" });
   } catch (error) {
     return res.status(500).json({ msg: error.message });
   }
 };
 
-// get access token:✅
-exports.getAccessToken = async (req, res) => {
+(exports.googleLogin = async (req, res) => {
   try {
-    const rf_token = req.cookies.refreshtoken;
+    const { tokenId } = req.body;
 
-    if (!rf_token) return res.status(400).json({ msg: "Please login now" });
-
-    jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-      if (err) return res.status(400).json({ msg: "Please login now" });
-
-      const access_token = createAccessToken({ id: user.id });
-      res.json({ access_token });
+    const verify = await client.verifyIdToken({
+      idToken: tokenId,
+      audience: process.env.MAILING_SERVICE_CLIENT_ID,
     });
-  } catch (error) {
-    return res.status(500).json({ msg: error.message });
+
+    const { email_verified, email, name, picture } = verify.payload;
+
+    const password = email + process.env.GOOGLE_SECRET;
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    if (!email_verified)
+      return res.status(400).json({ msg: "Email verification failed." });
+
+    const user = await User.findOne({ email }).select("+password");
+
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch)
+        return res.status(400).json({ msg: "Password is incorrect." });
+
+      const refresh_token = createRefreshToken({ id: user._id });
+      res.cookie("refreshtoken", refresh_token, {
+        httpOnly: true,
+        path: "/api/v1/refresh_token",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      res.cookie("refreshtoken", refresh_token, {
+        httpOnly: true,
+
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      res.json({ msg: "Login success!" });
+    } else {
+      const newUser = new User({
+        name,
+        email,
+        password: passwordHash,
+        avatar: picture,
+      });
+
+      await newUser.save();
+
+      const refresh_token = createRefreshToken({ id: newUser._id });
+      res.cookie("refreshtoken", refresh_token, {
+        httpOnly: true,
+        path: "/api/v1/refresh_token",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      res.cookie("refreshtoken", refresh_token, {
+        httpOnly: true,
+
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      res.json({ msg: "Login success!" });
+    }
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
   }
-};
+}),
+  // get access token:✅
+  (exports.getAccessToken = async (req, res) => {
+    try {
+      const rf_token = req.cookies.refreshtoken;
+      console.log(req.cookies.refreshtoken, "refresh token");
+      if (!rf_token) return res.status(400).json({ msg: "Please login now" });
+
+      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(400).json({ msg: "Please login now" });
+
+        const access_token = createAccessToken({ id: user.id });
+        res.json({ access_token });
+      });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  });
 
 // logout :✅
 exports.logout = (req, res) => {
   try {
     res.clearCookie("refreshtoken", { path: "/api/v1/refresh_token" });
+    res.clearCookie("refreshtoken");
+    // res.cookie("refreshtoken", null, {
+    //   httpOnly: true,
 
+    //   maxAge: new Date.now(), // 7 days
+    // });
     return res.json({ msg: "Logout Success" });
   } catch (error) {
     return res.status(500).json({ msg: error.message });
@@ -388,11 +465,11 @@ exports.authState = BigPromise(async (req, res, next) => {
 
   if (user) {
     res.status(200).json(user);
+  } else {
+    res.status(404).json({
+      msg: "you are not logged in",
+    });
   }
-
-  res.status(404).json({
-    msg: "you are not logged in",
-  });
 });
 
 // follow and following user

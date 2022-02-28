@@ -12,6 +12,7 @@ const { Server } = require("socket.io");
 // documentation imports
 const swaggerUi = require("swagger-ui-express");
 const YAML = require("yamljs");
+const path = require("path");
 const swaggerDocument = YAML.load("./swagger.yaml");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -24,7 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set("trust proxy", 1);
 // cookies and file middleare
-app.use(cookieParser(process.env.JWT_SECRET));
+app.use(cookieParser(process.env.REFRESH_TOKEN_SECRET));
 app.use(
   fileUpload({
     useTempFiles: true,
@@ -41,8 +42,11 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: { credentials: true, origin: true },
   allowRequest: (req, callback) => {
-    cookieParser(process.env.JWT_SECRET)(req, {}, () => {
-      callback(null, req.cookies.token);
+    // console.log(req.cookies.refreshtoken, "refresh token app.js");
+
+    cookieParser(process.env.REFRESH_TOKEN_SECRET)(req, {}, () => {
+      // console.log(req.cookies, "cookies");
+      callback(null, req.cookies.refreshtoken);
     });
   },
   allowUpgrades: true,
@@ -59,8 +63,8 @@ io.on("connection", (socket) => {
   socket.on("message", async (message) => {
     try {
       const decoded = jwt.verify(
-        socket.client.request.cookies.token,
-        process.env.JWT_SECRET
+        socket.client.request.cookies.refreshtoken,
+        process.env.REFRESH_TOKEN_SECRET
       );
 
       // await socket.join(decoded.id);
