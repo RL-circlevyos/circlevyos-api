@@ -17,7 +17,19 @@ const swaggerDocument = YAML.load("./swagger.yaml");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // cors
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
+const { createProxyMiddleware } = require("http-proxy-middleware");
+app.use(
+  "/api/v1",
+  createProxyMiddleware({
+    target: process.env.CLIENT_URL, //original url
+    changeOrigin: true,
+    //secure: false,
+    onProxyRes: function (proxyRes, req, res) {
+      proxyRes.headers["Access-Control-Allow-Origin"] = "*";
+    },
+  })
+);
 
 // regular middleare
 app.use(express.json());

@@ -19,6 +19,7 @@
     "express-fileupload": "^1.2.1",
     "googleapis": "^95.0.0",
     "gravatar": "^1.8.2",
+    "http-proxy-middleware": "^2.0.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.5",
     "morgan": "^1.10.0",
