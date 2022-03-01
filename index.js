@@ -17,7 +17,7 @@ cloudinary.config({
 PORT = process.env.PORT;
 
 server.listen(process.env.PORT, () => {
-  console.log(`server running on  port ${process.env.PORT} phase 1`);
+  console.log(`server running on  port ${process.env.PORT} `);
 });
 
 process.on("SIGTERM", () => {
