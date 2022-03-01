@@ -17,17 +17,13 @@ const swaggerDocument = YAML.load("./swagger.yaml");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // cors
-app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
-const { createProxyMiddleware } = require("http-proxy-middleware");
 app.use(
-  "/api/v1",
-  createProxyMiddleware({
-    target: process.env.CLIENT_URL, //original url
-    changeOrigin: true,
-    //secure: false,
-    onProxyRes: function (proxyRes, req, res) {
-      proxyRes.headers["Access-Control-Allow-Origin"] = "*";
-    },
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
 );
 
@@ -57,7 +53,7 @@ const io = new Server(server, {
     // console.log(req.cookies.refreshtoken, "refresh token app.js");
 
     cookieParser(process.env.REFRESH_TOKEN_SECRET)(req, {}, () => {
-      // console.log(req.cookies, "cookies");
+      console.log(req.cookies.refreshtoken, "cookies");
       callback(null, req.cookies.refreshtoken);
     });
   },
