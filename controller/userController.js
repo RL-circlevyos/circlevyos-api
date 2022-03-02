@@ -118,14 +118,16 @@ exports.login = async (req, res) => {
     }
 
     const refresh_token = createRefreshToken({ id: user._id });
+    console.log();
     res.cookie("refreshtoken", refresh_token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production" ? true : false,
       path: "/api/v1/refresh_token",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.cookie("refreshtoken", refresh_token, {
       httpOnly: true,
-
+      secure: process.env.NODE_ENV === "production" ? true : false,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.json({ msg: "Login success" });
@@ -162,12 +164,13 @@ exports.login = async (req, res) => {
       const refresh_token = createRefreshToken({ id: user._id });
       res.cookie("refreshtoken", refresh_token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === "production" ? true : false,
         path: "/api/v1/refresh_token",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       res.cookie("refreshtoken", refresh_token, {
         httpOnly: true,
-
+        secure: process.env.NODE_ENV === "production" ? true : false,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -185,13 +188,14 @@ exports.login = async (req, res) => {
       const refresh_token = createRefreshToken({ id: newUser._id });
       res.cookie("refreshtoken", refresh_token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === "production" ? true : false,
         path: "/api/v1/refresh_token",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.cookie("refreshtoken", refresh_token, {
         httpOnly: true,
-
+        secure: process.env.NODE_ENV === "production" ? true : false,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -204,8 +208,8 @@ exports.login = async (req, res) => {
   // get access token:✅
   (exports.getAccessToken = async (req, res) => {
     try {
-      const rf_token = req.cookies.refreshtoken;
-      console.log(req.cookies.refreshtoken, "refresh token");
+      const rf_token = req.cookies["refreshtoken"];
+      console.log(rf_token, "refresh token");
       if (!rf_token) return res.status(400).json({ msg: "Please login now" });
 
       jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
