@@ -123,11 +123,13 @@ exports.login = async (req, res) => {
       httpOnly: true,
       path: "/api/v1/refresh_token",
       secure: true,
+      sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.cookie("refreshtoken", refresh_token, {
       httpOnly: true,
       secure: true,
+      sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
