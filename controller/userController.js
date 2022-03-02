@@ -232,6 +232,8 @@ exports.logout = async (req, res) => {
   try {
     res.clearCookie("refreshtoken", { path: "/api/v1/refresh_token" });
     res.clearCookie("refreshtoken");
+    localStorage.removeItem("firstlogin");
+
     return res.json({ msg: "Logout Success" });
   } catch (error) {
     return res.status(500).json({ msg: error.message });
@@ -250,7 +252,7 @@ exports.logout = async (req, res) => {
     const url = `${CLIENT_URL}/user/reset/${access_token}`;
 
     sendMail(email, url, "Reset password");
-    res.json({ msg: "Re-send the passworf,please check your mail" });
+    res.json({ msg: "Please check your mail to reset your password" });
   } catch (error) {
     return res.status(500).json({ msg: error.message });
   }
