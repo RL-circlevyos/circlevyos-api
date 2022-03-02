@@ -118,18 +118,19 @@ exports.login = async (req, res) => {
     }
 
     const refresh_token = createRefreshToken({ id: user._id });
-    console.log();
+    res.setHeader("Set-Cookie", `refreshtoken=${refresh_token}`);
     res.cookie("refreshtoken", refresh_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production" ? true : false,
       path: "/api/v1/refresh_token",
+      secure: process.env.NODE_ENV === "production" ? true : false,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.cookie("refreshtoken", refresh_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production" ? true : false,
+      secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
+
     res.json({ msg: "Login success" });
   } catch (error) {
     return res.status(500).json({ msg: error.message });
@@ -206,7 +207,7 @@ exports.login = async (req, res) => {
   }
 }),
   // get access token:✅
-  (exports.getAccessToken = async (req, res) => {
+  (exports.getAccessToken = (req, res) => {
     try {
       const rf_token = req.cookies["refreshtoken"];
       console.log(rf_token, "refresh token");
@@ -216,6 +217,7 @@ exports.login = async (req, res) => {
         if (err) return res.status(400).json({ msg: "Please login now" });
 
         const access_token = createAccessToken({ id: user.id });
+
         res.json({ access_token });
       });
     } catch (error) {
@@ -224,15 +226,10 @@ exports.login = async (req, res) => {
   });
 
 // logout :✅
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
   try {
     res.clearCookie("refreshtoken", { path: "/api/v1/refresh_token" });
     res.clearCookie("refreshtoken");
-    // res.cookie("refreshtoken", null, {
-    //   httpOnly: true,
-
-    //   maxAge: new Date.now(), // 7 days
-    // });
     return res.json({ msg: "Logout Success" });
   } catch (error) {
     return res.status(500).json({ msg: error.message });

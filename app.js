@@ -51,7 +51,7 @@ const io = new Server(server, {
     // console.log(req.cookies.refreshtoken, "refresh token app.js");
 
     cookieParser(process.env.REFRESH_TOKEN_SECRET)(req, {}, () => {
-      console.log(req.cookies.refreshtoken, "cookies");
+      console.log(req.cookies.refreshtoken, "refresh token");
       callback(null, req.cookies.refreshtoken);
     });
   },
