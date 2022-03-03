@@ -167,13 +167,15 @@ exports.login = async (req, res) => {
       const refresh_token = createRefreshToken({ id: user._id });
       res.cookie("refreshtoken", refresh_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production" ? true : false,
         path: "/api/v1/refresh_token",
+        secure: process.env.NODE_ENV === "production" ? true : false,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       res.cookie("refreshtoken", refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production" ? true : false,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
