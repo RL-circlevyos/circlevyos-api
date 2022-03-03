@@ -22,6 +22,7 @@ app.use(
     origin: process.env.CLIENT_URL,
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: ["Content-Type"],
   })
 );
 
@@ -95,6 +96,18 @@ app.use("/api/v1", require("./routes/feedback"));
 // app.use("/api/v1", story);
 //app.use("/api/v1", trending);
 //exports.io = io;
+
+// enabling pre-flight
+app.options(
+  "*",
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
 // export app
 
 module.exports = { server };

@@ -122,13 +122,13 @@ exports.login = async (req, res) => {
     res.cookie("refreshtoken", refresh_token, {
       httpOnly: true,
       path: "/api/v1/refresh_token",
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" ? true : false,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.cookie("refreshtoken", refresh_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" ? true : false,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
@@ -232,7 +232,6 @@ exports.logout = async (req, res) => {
   try {
     res.clearCookie("refreshtoken", { path: "/api/v1/refresh_token" });
     res.clearCookie("refreshtoken");
-    localStorage.removeItem("firstlogin");
 
     return res.json({ msg: "Logout Success" });
   } catch (error) {
