@@ -101,7 +101,7 @@ app.use("/api/v1", require("./routes/feedback"));
 app.options(
   "*",
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: "*",
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type"],
