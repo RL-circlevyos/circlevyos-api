@@ -19,10 +19,12 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // cors
 app.use(
   cors({
-    origin: "*",
+    origin: "https://circlevyos.com",
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type"],
+    preflightContinue: false,
+    optionsSuccessStatus: 200,
   })
 );
 
@@ -98,15 +100,15 @@ app.use("/api/v1", require("./routes/feedback"));
 //exports.io = io;
 
 // enabling pre-flight
-app.options(
-  "*",
-  cors({
-    origin: "*",
-    credentials: true,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: ["Content-Type"],
-  })
-);
+// app.options(
+//   "*",
+//   cors({
+//     origin: "*",
+//     credentials: true,
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//     allowedHeaders: ["Content-Type"],
+//   })
+// );
 
 // export app
 
