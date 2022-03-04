@@ -64,8 +64,6 @@ exports.createImagine = BigPromise(async (req, res, next) => {
 
   const user = await User.findById(req.user.id);
 
-  console.log(user.name);
-
   (req.body.introImage = introImage ? introImage : null),
     (req.body.outroImage = outroImage ? outroImage : null),
     (req.body.audiovoice = audioUploadFile ? audioUploadFile : null),
@@ -142,40 +140,49 @@ exports.updateImgine = BigPromise(async (req, res, next) => {
   // fetching updated details
   let newImagineForUpdate = req.body;
 
-  // if (imagine.introImage && req.files.introImage) {
-  //   introImageId = imagine.introImage.id;
-  //   // delete old image
-  //   await cloudinary.v2.uploader.destroy(introImageId);
+  if (req.files) {
+    // updating intro image
+    if (req.files.introImage) {
+      // delete old image
+      await cloudinary.v2.uploader.destroy(imagine.introImage.id);
 
-  //   // now upload new intro image
-  //   const result = await cloudinary.v2.uploader.upload(
-  //     req.files.introImage.tempFilePath,
-  //     {
-  //       folder: "imagines",
-  //       crop: "scale",
-  //     }
-  //   );
-  // }
+      // upload new image
+      const newIntroImage = await cloudinary.v2.uploader.upload(
+        req.files.introImage.tempFilePath,
+        {
+          folder: "imagines",
+          width: 150,
+          crop: "scale",
+        }
+      );
+      // add intro image for update
+      newImagineForUpdate.introImage = {
+        id: newIntroImage.public_id,
+        secure_url: newIntroImage.secure_url,
+      };
+    }
 
-  // if (imagine.outroImage && req.files.outroImage) {
-  //   outroImageId = imagine.outroImage.id;
-  //   // delete old image
-  //   await cloudinary.v2.uploader.destroy(outroImageId);
+    // updating outro image
+    if (req.files.outroImage) {
+      // delete old image
+      await cloudinary.v2.uploader.destroy(imagine.outroImage.id);
 
-  //   // now upload new intro image
-  //   const result = await cloudinary.v2.uploader.upload(
-  //     req.files.outroImage.tempFilePath,
-  //     {
-  //       folder: "imagines",
-  //       crop: "scale",
-  //     }
-  //   );
-
-  //   newImagineForUpdate.outroImage = result && {
-  //     id: result.public_id,
-  //     secure_url: result.secure_url,
-  //   };
-  // }
+      // upload new image
+      const newOutroImage = await cloudinary.v2.uploader.upload(
+        req.files.outroImage.tempFilePath,
+        {
+          folder: "imagines",
+          width: 150,
+          crop: "scale",
+        }
+      );
+      // add intro image for update
+      newImagineForUpdate.outroImage = {
+        id: newOutroImage.public_id,
+        secure_url: newOutroImage.secure_url,
+      };
+    }
+  }
 
   const updateImagine = await Imagines.findByIdAndUpdate(
     req.params.id,
