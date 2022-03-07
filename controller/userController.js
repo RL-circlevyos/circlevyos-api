@@ -482,11 +482,16 @@ exports.authState = BigPromise(async (req, res, next) => {
 exports.follow = BigPromise(async (req, res, next) => {
   const user = await User.findById(req.body.id);
 
-  if (!user.followers.includes(req.user.id)) {
+  // **********************
+  const loggedInUser = await User.findById(req.user.id);
+
+  // **************************
+
+  if (!loggedInUser.following.includes(req.body.id)) {
     User.findByIdAndUpdate(
       req.body.id,
       {
-        $push: { followers: req.user._id },
+        $push: { followers: req.user.id },
       },
       {
         new: true,
@@ -522,11 +527,14 @@ exports.follow = BigPromise(async (req, res, next) => {
 // unfollow
 exports.unfollow = BigPromise(async (req, res, next) => {
   const user = await User.findById(req.body.id);
-  if (user.followers.includes(req.user.id)) {
+
+  const loggedInUser = await User.findById(req.user.id);
+
+  if (loggedInUser.following.includes(req.body.id)) {
     User.findByIdAndUpdate(
       req.body.id,
       {
-        $pull: { followers: req.user._id },
+        $pull: { followers: req.user.id },
       },
       {
         new: true,
