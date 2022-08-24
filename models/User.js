@@ -22,6 +22,33 @@ const UserSchema = mongoose.Schema({
     minlength: [9, "password should be atleast 9 char"],
     select: false,
   },
+  generalStatus: {
+    type: Boolean,
+    default: true,
+  },
+
+  mentorStatus: {
+    type: Boolean,
+    default: false,
+  },
+  mentor: {
+    type: Boolean,
+    default: false,
+  },
+  mentorStatusMsg: {
+    type: String,
+  },
+  jobProviderStatus: {
+    type: Boolean,
+    default: false,
+  },
+  jobProvider: {
+    type: Boolean,
+    default: false,
+  },
+  jobProviderStatusMsg: {
+    type: String,
+  },
 
   photo: {
     id: {
@@ -33,6 +60,34 @@ const UserSchema = mongoose.Schema({
   },
   bio: {
     type: String,
+  },
+  resume: {
+    id: {
+      type: String,
+    },
+    secure_url: {
+      type: String,
+    },
+  },
+  skills: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "userskill",
+    },
+  ],
+  jobprofile: {
+    type: mongoose.Schema.ObjectId,
+    ref: "jobprofile",
+  },
+  jobexperience: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "jobexp",
+    },
+  ],
+  career: {
+    type: mongoose.Schema.ObjectId,
+    ref: "career",
   },
   followers: [
     {
@@ -60,6 +115,10 @@ const UserSchema = mongoose.Schema({
       },
     },
   ],
+  role: {
+    type: String,
+    default: "general",
+  },
 
   forgotPasswordToken: {
     type: String,

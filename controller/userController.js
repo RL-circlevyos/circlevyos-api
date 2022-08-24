@@ -13,6 +13,11 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sendMail = require("./sendMail");
 const { google } = require("googleapis");
+const UserRequest = require("../models/UserRequest");
+const UserCounselling = require("../models/UserCounselling");
+const Skill = require("../models/Skill");
+const JobExp = require("../models/JobExp");
+
 const { OAuth2 } = google.auth;
 
 const client = new OAuth2(process.env.MAILING_SERVICE_CLIENT_ID);
@@ -124,13 +129,13 @@ exports.login = async (req, res) => {
       path: "/api/v1/refresh_token",
       secure: process.env.NODE_ENV === "production" ? true : false,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.cookie("refreshtoken", refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production" ? true : false,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.json({ msg: "Login success" });
@@ -406,6 +411,59 @@ exports.adminAllUser = BigPromise(async (req, res, next) => {
   });
 });
 
+exports.resumeUpload = BigPromise(async (req, res, next) => {
+  let resumeFile;
+
+  console.log(req.files);
+
+  if (req.files.resume) {
+    resumeFile = await cloudinary.v2.uploader.upload(
+      req.files.resume.tempFilePath,
+      {
+        folder: "resume",
+      }
+    );
+  }
+
+  const resume = resumeFile && {
+    id: resumeFile.public_id,
+    secure_url: resumeFile.secure_url,
+  };
+
+  req.body.resume = resume;
+
+  const user = await User.findByIdAndUpdate(req.user.id, req.body, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  res.status(200).json({ user });
+});
+
+exports.addSkill = BigPromise(async (req, res, next) => {
+  if (!req.body.skillname) {
+    res.status(400).json({ msg: "skill name is required" });
+  }
+
+  newSkill = await Skill.create(req.body);
+
+  User.findByIdAndUpdate(
+    req.user.id,
+    {
+      $push: { skills: newSkill },
+    },
+    {
+      new: true,
+    },
+    (err, result) => {
+      if (err) {
+        res.status(400).json({ msg: err });
+      }
+    }
+  );
+});
+
 exports.singleUser = BigPromise(async (req, res, next) => {
   const user = await User.findById(req.params.id);
 
@@ -466,8 +524,304 @@ exports.managerAllUser = BigPromise(async (req, res, next) => {
   });
 });
 
-exports.authState = BigPromise(async (req, res, next) => {
+// * mentor
+
+// * mentor request create
+exports.mentorReq = BigPromise(async (req, res, next) => {
   const user = await User.findById(req.user.id);
+
+  if (!req.body.organization || !req.body.designation) {
+    return res.status(400).json({ msg: "Fill all the required fields" });
+  }
+
+  let verificationfilestore, resumeFileStore;
+
+  if (req.files) {
+    if (req.files.verificationFile) {
+      console.log(req.files.verificationFile.tempFilePath);
+      verificationfilestore = await cloudinary.v2.uploader.upload(
+        req.files.verificationFile.tempFilePath,
+        {
+          folder: "userRequest",
+        }
+      );
+    }
+
+    if (req.files.resume) {
+      resumeFileStore = await cloudinary.v2.uploader.upload(
+        req.files.resume.tempFilePath,
+        {
+          folder: "userRequest",
+        }
+      );
+    }
+  }
+
+  const verificationFile = verificationfilestore && {
+    id: verificationfilestore.public_id,
+    secure_url: verificationfilestore.secure_url,
+  };
+
+  const resume = resumeFileStore && {
+    id: resumeFileStore.public_id,
+    secure_url: resumeFileStore.secure_url,
+  };
+
+  req.body.user = user;
+  req.body.verificationFile = verificationFile ? verificationFile : null;
+  req.body.resume = resume ? resume : null;
+  req.body.mentor = true;
+
+  const userMentorRequest = await UserRequest.create(req.body);
+
+  req.body.mentorStatus = true;
+  req.body.mentor = true;
+  req.body.generalStatus = false;
+  await User.findByIdAndUpdate(req.user.id, req.body, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+  res.status(200).json({
+    success: true,
+    userMentorRequest,
+  });
+});
+
+// * get all mentor requests
+exports.getMentorReqs = BigPromise(async (req, res, next) => {
+  const mentorRequests = await UserRequest.find();
+
+  res.status(200).json({
+    mentorRequests,
+  });
+});
+
+// * get single mentor request
+exports.getSingleMentorReq = BigPromise(async (req, res, next) => {
+  const mentorRequest = await UserRequest.findById(req.params.id);
+
+  if (!mentorRequest) {
+    return res.status(400).json({ msg: "No such mentor request is found" });
+  }
+
+  res.status(200).json({
+    mentorRequest,
+  });
+});
+
+// * delete mentor requests
+exports.deleteMentorRequest = BigPromise(async (req, res, next) => {
+  const mentorRequest = await UserRequest.findById(req.params.id);
+
+  if (!mentorRequest) {
+    return res.status(400).json({ msg: "No such mentor request is found" });
+  }
+
+  await mentorRequest.delete();
+
+  req.body.mentorStatusMsg =
+    "Your mentorship application is not accepted, try again";
+  await User.findByIdAndUpdate(mentorRequest.user.id, req.body);
+
+  res.status(200).json({
+    msg: "Mentor Request deleted",
+  });
+});
+
+// * turn user into mentor
+// ! only admin access
+exports.turnUserMentor = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return res.status(400).json({ msg: "User does not exiist" });
+  }
+
+  req.body.mentorStatus = !user.mentorStatus;
+
+  await User.findByIdAndUpdate(req.params.id, req.body);
+
+  res.status(200).json({ msg: "user turned into mentor" });
+});
+
+// * job provider
+// * job provider request by user
+exports.jobProviderReq = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if (!req.body.organization || !req.body.designation) {
+    return res.status(400).json({ msg: "Fill all the required fields" });
+  }
+
+  let verificationfilestore, resumeFileStore;
+
+  if (req.file) {
+    if (req.files.verificationFile) {
+      verificationfilestore = await cloudinary.v2.uploader.upload(
+        req.files.verificationFile.tempFilePath,
+        {
+          folder: "userRequest",
+        }
+      );
+    }
+
+    if (req.files.resume) {
+      resumeFileStore = await cloudinary.v2.uploader.upload(
+        req.files.resume.tempFilePath,
+        {
+          folder: "userRequest",
+        }
+      );
+    }
+  }
+
+  const verificationFile = verificationfilestore && {
+    id: verificationfilestore.public_id,
+    secure_url: verificationfilestore.secure_url,
+  };
+
+  const resume = resumeFileStore && {
+    id: resumeFileStore.public_id,
+    secure_url: resumeFileStore.secure_url,
+  };
+
+  req.body.user = user;
+  req.body.verificationFile = verificationFile;
+  req.body.resume = resume;
+  req.body.jobProvider = true;
+
+  const userJobProviderRequest = await UserRequest.create(req.body);
+
+  req.body.jobProviderStatus = true;
+  req.body.jobProvider = true;
+  req.body.generalStatus = false;
+  await User.findByIdAndUpdate(req.user.id, req.body, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  res.status(200).json({
+    success: true,
+    userJobProviderRequest,
+  });
+});
+
+// * switch to mentor
+exports.switchToMentor = BigPromise(async (req, res, next) => {
+  req.body.mentorStatus = true;
+
+  req.body.generalStatus = false;
+  await User.findByIdAndUpdate(req.user.id, req.body, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
+//  * switch to job provider
+exports.switchToJobProvider = BigPromise(async (req, res, next) => {
+  req.body.jobProviderStatus = true;
+
+  req.body.generalStatus = false;
+  await User.findByIdAndUpdate(req.user.id, req.body, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
+// * switch to general
+exports.switchToGeneral = BigPromise(async (req, res, next) => {
+  req.body.jobProviderStatus = false;
+  req.body.mentorStatus = false;
+  req.body.generalStatus = true;
+  await User.findByIdAndUpdate(req.user.id, req.body, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
+// * get all job providers requests
+exports.getJobProvidersReqs = BigPromise(async (req, res, next) => {
+  const jobProvidersRequests = await UserRequest.find();
+
+  res.status(200).json({
+    jobProvidersRequests,
+  });
+});
+
+// * get single mentor request
+exports.getSingleJobProviderReq = BigPromise(async (req, res, next) => {
+  const jobProviderRequest = await UserRequest.findById(req.params.id);
+
+  if (!jobProviderRequest) {
+    return res
+      .status(400)
+      .json({ msg: "No such job provider request is found" });
+  }
+
+  res.status(200).json({
+    jobProviderRequest,
+  });
+});
+
+// * delete mentor requests
+exports.deleteJobProviderRequest = BigPromise(async (req, res, next) => {
+  const jobProviderRequest = await UserRequest.findById(req.params.id);
+
+  if (!jobProviderRequest) {
+    return res.status(400).json({ msg: "No such mentor request is found" });
+  }
+
+  await jobProviderRequest.delete();
+
+  req.body.jobProviderStatusMsg =
+    "Your job provider application was not accepted, Please try again";
+  await User.findByIdAndUpdate(mentorRequest.user.id, req.body);
+
+  res.status(200).json({
+    msg: "Job provider Request deleted",
+  });
+});
+
+// * turn user into job provider
+// ! only admin access
+exports.turnUserJobProvider = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return res.status(400).json({ msg: "User does not exiist" });
+  }
+
+  req.body.jobProviderStatus = !user.jobProviderStatus;
+
+  await User.findByIdAndUpdate(req.params.id, req.body);
+
+  res.status(200).json({ msg: "user turned into job provider" });
+});
+
+// ** end of jov provider request
+
+exports.authState = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.user.id).populate(
+    "skills",
+    "skillname verified"
+  );
 
   if (user) {
     res.status(200).json(user);
@@ -565,6 +919,16 @@ exports.unfollow = BigPromise(async (req, res, next) => {
   }
 });
 
+// get all mentor list
+exports.getAllMentors = BigPromise(async (req, res, next) => {
+  const mentors = await User.find().where("mentor").equals(true);
+
+  res.status(200).json({
+    success: true,
+    mentors,
+  });
+});
+
 // show all user posted imagines
 exports.userImagines = BigPromise(async (req, res, next) => {
   const imagine = await Imagines.find({ user: req.params.id })
@@ -579,6 +943,72 @@ exports.mySavedImagines = BigPromise(async (req, res, next) => {
 
   res.status(200).json({
     saveimagines,
+  });
+});
+
+exports.addJobexp = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if (!req.body.companyname) {
+    res.status(400).json("company name is required");
+  }
+
+  req.body.user = user;
+
+  const newJobExp = await JobExp.create(req.body);
+
+  User.findByIdAndUpdate(
+    req.user.id,
+    {
+      $push: { jobexperience: newJobExp },
+    },
+    {
+      new: true,
+    }
+  ).catch((err) => res.status(400).json(err));
+
+  res.status(200).json(newJobExp);
+});
+
+// * get job experience
+exports.getJobExperiences = BigPromise(async (req, res, next) => {
+  const userJobExperiences = await User.findById(req.user.id).populate(
+    "jobexperience",
+    "_id companyname startDate endDate present expstatus"
+  );
+
+  res.status(200).json(userJobExperiences);
+});
+
+// counselling
+// create counselling
+exports.createCounselling = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  req.body.user = user;
+
+  const userCounselling = await UserCounselling.create(req.body);
+
+  res.status(200).json({
+    success: true,
+    userCounselling,
+  });
+});
+
+exports.getAllCounselling = BigPromise(async (req, res, next) => {
+  const allCousellings = await UserCounselling.find();
+
+  res.status(200).json({
+    success: true,
+    allCousellings,
+  });
+});
+
+exports.getSingleCounselling = BigPromise(async (req, res, next) => {
+  const counselling = await UserCounselling.findById(req.params.id);
+
+  res.status(200).json({
+    counselling,
   });
 });
 
@@ -597,7 +1027,7 @@ const createActivationToken = (payload) => {
 
 const createAccessToken = (payload) => {
   return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "30d",
   });
 };
 

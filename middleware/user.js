@@ -21,8 +21,9 @@ exports.isLoggedIn = (req, res, next) => {
 };
 
 exports.customRole = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+  return async (req, res, next) => {
+    const user = await User.findById(req.user.id);
+    if (!roles.includes(user.role)) {
       return next(
         new CustomeError("Your are not allowed for this resource", 403)
       );

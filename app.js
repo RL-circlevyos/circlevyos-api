@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const shortid = require("shortid");
 
 const app = express();
 const morgan = require("morgan");
@@ -15,6 +16,7 @@ const YAML = require("yamljs");
 const path = require("path");
 const swaggerDocument = YAML.load("./swagger.yaml");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const Razorpay = require("razorpay");
 
 // cors
 app.use(
@@ -60,9 +62,67 @@ const io = new Server(server, {
   allowUpgrades: true,
 });
 
+const razorpay = new Razorpay({
+  key_id: "rzp_test_Z6BZ0kXlJJphbP",
+  key_secret: "0ci4sIKx4NlV0f2nZhSmOAQj",
+});
+
+app.post("/api/v1/verification", (req, res) => {
+  // do a validation
+  const secret = "12345678";
+
+  console.log(req.body);
+
+  const crypto = require("crypto");
+
+  const shasum = crypto.createHmac("sha256", secret);
+  shasum.update(JSON.stringify(req.body));
+  const digest = shasum.digest("hex");
+
+  console.log(digest, req.headers["x-razorpay-signature"]);
+
+  if (digest === req.headers["x-razorpay-signature"]) {
+    console.log("request is legit");
+    // process it
+    require("fs").writeFileSync(
+      "payment1.json",
+      JSON.stringify(req.body, null, 4)
+    );
+  } else {
+    // pass it
+  }
+  res.json({ status: "ok" });
+});
+
+app.post("/api/v1/razorpay", async (req, res) => {
+  const payment_capture = 1;
+  const amount = 7;
+  const currency = "INR";
+
+  const options = {
+    amount: amount * 100,
+    currency,
+    receipt: shortid.generate(),
+    payment_capture,
+  };
+
+  try {
+    const response = await razorpay.orders.create(options);
+    console.log(response);
+    res.json({
+      id: response.id,
+      currency: response.currency,
+      amount: response.amount,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 // socket middleware
 app.use((req, res, next) => {
   res.io = io;
+
   next();
 });
 
@@ -94,6 +154,10 @@ io.on("connection", (socket) => {
 app.use("/api/v1", require("./routes/user"));
 app.use("/api/v1", require("./routes/imagines"));
 app.use("/api/v1", require("./routes/feedback"));
+app.use("/api/v1", require("./routes/question"));
+app.use("/api/v1", require("./routes/myResources"));
+app.use("/api/v1", require("./routes/job"));
+app.use("/api/v1", require("./routes/career"));
 // app.use("/api/v1", story);
 //app.use("/api/v1", trending);
 //exports.io = io;
